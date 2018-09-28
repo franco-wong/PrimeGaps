@@ -29,7 +29,7 @@ int main(void) {
 	printf("\n");
 
 	//dividing up the work
-	mpz_t np;
+	/*mpz_t np;
 	mpz_init(np);
 	//int P = 8;
 	mpz_t P;
@@ -61,7 +61,7 @@ int main(void) {
 			mpz_add(proc_start[x],first_part,n);
 		}
 
-	}
+	}*/
 
 
 
