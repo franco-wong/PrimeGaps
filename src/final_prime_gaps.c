@@ -116,44 +116,36 @@ main (int argc, char *argv[]) {
     gap_lower_ui = mpz_get_ui(gap_lower);
     gap_upper_ui = mpz_get_ui(gap_upper);
 
-    if (p>1){
-        if (id==0){
 
-            for(source=1;source<p;source++){
-                MPI_Recv(&buffer1,1,MPI_UNSIGNED_LONG,source,1,MPI_COMM_WORLD,&status);
-                MPI_Recv(&buffer2,1,MPI_UNSIGNED_LONG,source,2,MPI_COMM_WORLD,&status);
-                MPI_Recv(&buffer3,1,MPI_UNSIGNED_LONG,source,3,MPI_COMM_WORLD,&status);
-                if (buffer1>lgap_ui){
-                    lgap_ui = buffer1;
-                    gap_lower_ui = buffer2;
-                    gap_upper_ui = buffer3;
-                }
-            }
-            printf("The maximum gap is %lu, which is between %lu and %lu.\n",lgap_ui,gap_lower_ui, gap_upper_ui);
+	if (id==0){
 
-            endTime = MPI_Wtime();
-            total = endTime - startTime;
-            printf("The elapsed time for %i processes is %f seconds.", id,total);
+		for(source=1;source<p;source++){
+			MPI_Recv(&buffer1,1,MPI_UNSIGNED_LONG,source,1,MPI_COMM_WORLD,&status);
+			MPI_Recv(&buffer2,1,MPI_UNSIGNED_LONG,source,2,MPI_COMM_WORLD,&status);
+			MPI_Recv(&buffer3,1,MPI_UNSIGNED_LONG,source,3,MPI_COMM_WORLD,&status);
+			if (buffer1>lgap_ui){
+				lgap_ui = buffer1;
+				gap_lower_ui = buffer2;
+				gap_upper_ui = buffer3;
+			}
+		}
+		printf("The maximum gap is %lu, which is between %lu and %lu.\n",lgap_ui,gap_lower_ui, gap_upper_ui);
+		MPI_Barrier(MPI_COMM_WORLD);
+		endTime = MPI_Wtime();
+		total = endTime - startTime;
+		printf("The elapsed time for %i processes is %f seconds.", id,total);
 
-        }else{
+	}else{
 
 //        lgap_ui = mpz_get_ui(lgap);
 //        gap_lower_ui = mpz_get_ui(gap_lower);
 //        gap_upper_ui = mpz_get_ui(gap_upper);
 
-            MPI_Send(&lgap_ui,1,MPI_UNSIGNED_LONG,0,1,MPI_COMM_WORLD);
-            MPI_Send(&gap_lower_ui,1,MPI_UNSIGNED_LONG,0,2,MPI_COMM_WORLD);
-            MPI_Send(&gap_upper_ui,1,MPI_UNSIGNED_LONG,0,3,MPI_COMM_WORLD);
-        }
-    }else{
-                printf("The maximum gap is %lu, which is between %lu and %lu.\n",lgap_ui,gap_lower_ui, gap_upper_ui);
-                MPI_Barrier(MPI_COMM_WORLD);
-        endTime = MPI_Wtime();
-        total = endTime - startTime;
-        printf("The elapsed time for %i processes is %f seconds.", id,total);
-        }
-
-
+		MPI_Send(&lgap_ui,1,MPI_UNSIGNED_LONG,0,1,MPI_COMM_WORLD);
+		MPI_Send(&gap_lower_ui,1,MPI_UNSIGNED_LONG,0,2,MPI_COMM_WORLD);
+		MPI_Send(&gap_upper_ui,1,MPI_UNSIGNED_LONG,0,3,MPI_COMM_WORLD);
+	}
+ 
     //endTime = MPI_Wtime();
     //total = endTime - startTime;
     //printf("The elapsed time for %i processes is %f seconds",id,total);
