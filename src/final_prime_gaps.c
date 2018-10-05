@@ -4,9 +4,6 @@
 
 main (int argc, char *argv[]) {
 
-    //double startTime, endTime, total;
-    //startTime = MPI_Wtime();
-
     MPI_Init(&argc, &argv);
 
     int id,p,source,buffer,tag,flag,test;
@@ -38,13 +35,10 @@ main (int argc, char *argv[]) {
 
 
     // init mpz variables with initial values
-    //mpz_set_ui(P,atoi(argv[0]));
     mpz_set_ui(gap,0);
     mpz_set_ui(lgap,0);
     mpz_set_ui(gap_lower,0);
     mpz_set_ui(gap_upper,0);
-
-//    end = argc[0];
 
     MPI_Comm_rank (MPI_COMM_WORLD, &id);
     MPI_Comm_size (MPI_COMM_WORLD, &p);
@@ -60,7 +54,6 @@ main (int argc, char *argv[]) {
         mpz_set_ui(mpzFlag,1);                  //conditional
     }
     mpz_fdiv_q(size,end,P);                             // n/P = size
- //size = mpz_fdiv_q(np,n,P);
     mpz_mul(my_start,mpzId,size);               // start = rank*size +min(rank, mod(n,P)
     if(mpz_cmp(P,mod_end)>0){
         mpz_add(my_start, my_start, mod_end);
@@ -69,19 +62,11 @@ main (int argc, char *argv[]) {
         mpz_add(my_start, my_start, P);
     }
     mpz_add(size, size, mpzFlag);               //size + conditional
-/*    if(mpz_cmp(mod_end,P)>0){                 //start =
-        mpz_mul(my_start,my_start,P);
-    }
-    else{
-       mpz_mul(my_start,my_start,end);
-    }
-*/
-    mpz_add(my_end,my_start,size);
 
+    mpz_add(my_end,my_start,size);
 
     // requires my_start, my_end, end
     // result in lgap, gap_lower and gap_upper
-
 
     // find first prime in range
     mpz_sub_ui(current_prime, my_start, 1);
@@ -105,20 +90,19 @@ main (int argc, char *argv[]) {
             mpz_set(gap_lower, prev_prime);
             mpz_set(gap_upper, current_prime);
         }
-
                 // ignore gaps that contain values outside the main range
                 if (mpz_cmp(current_prime, end)>0){
             break;
         }
     }
 
+    // converts mpz variables to unsigned long	
     lgap_ui = mpz_get_ui(lgap);
     gap_lower_ui = mpz_get_ui(gap_lower);
     gap_upper_ui = mpz_get_ui(gap_upper);
 
-
 	if (id==0){
-
+		// if 
 		for(source=1;source<p;source++){
 			MPI_Recv(&buffer1,1,MPI_UNSIGNED_LONG,source,1,MPI_COMM_WORLD,&status);
 			MPI_Recv(&buffer2,1,MPI_UNSIGNED_LONG,source,2,MPI_COMM_WORLD,&status);
@@ -131,25 +115,18 @@ main (int argc, char *argv[]) {
 		}
 		printf("The maximum gap is %lu, which is between %lu and %lu.\n",lgap_ui,gap_lower_ui, gap_upper_ui);
 		MPI_Barrier(MPI_COMM_WORLD);
+		// calculate time it took p processes to finish finding the highest prime gap between 1 - 1 billion
 		endTime = MPI_Wtime();
 		total = endTime - startTime;
 		printf("The elapsed time for %i processes is %f seconds.", id,total);
 
 	}else{
 
-//        lgap_ui = mpz_get_ui(lgap);
-//        gap_lower_ui = mpz_get_ui(gap_lower);
-//        gap_upper_ui = mpz_get_ui(gap_upper);
-
 		MPI_Send(&lgap_ui,1,MPI_UNSIGNED_LONG,0,1,MPI_COMM_WORLD);
 		MPI_Send(&gap_lower_ui,1,MPI_UNSIGNED_LONG,0,2,MPI_COMM_WORLD);
 		MPI_Send(&gap_upper_ui,1,MPI_UNSIGNED_LONG,0,3,MPI_COMM_WORLD);
 	}
  
-    //endTime = MPI_Wtime();
-    //total = endTime - startTime;
-    //printf("The elapsed time for %i processes is %f seconds",id,total);
-
     MPI_Finalize();
 }
 
